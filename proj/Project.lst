@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 12:46:44
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
 	BLACKJAC					     Page 1 - 1
 
 
@@ -38,56 +38,103 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 12:46:44
 	    00
 	   ]
  00000068 34			shuffle_range_size BYTE 52
-
+ 00000069 00000000		shift_index DWORD ?
 
 
  00000000			.code
 
  00000000			main PROC
- 00000000  E8 00000007			call deckgen
-
+ 00000000  E8 0000000C			call deckgen
+ 00000005  E8 00000030			call shuffle
 
 					invoke ExitProcess, 0
- 00000005  6A 00	   *	    push   +000000000h
- 00000007  E8 00000000 E   *	    call   ExitProcess
- 0000000C			main ENDP
+ 0000000A  6A 00	   *	    push   +000000000h
+ 0000000C  E8 00000000 E   *	    call   ExitProcess
+ 00000011			main ENDP
 
 
 
- 0000000C			deckgen PROC
- 0000000C  B3 01			mov bl, 1
- 0000000E  B9 0000000D			mov ecx, 13
- 00000013  0F B6 35			movzx esi, BYTE PTR [deck]
+ 00000011			deckgen PROC
+ 00000011  B3 01			mov bl, 1
+ 00000013  B9 0000000D			mov ecx, 13
+ 00000018  0F B6 35			movzx esi, BYTE PTR [deck]
 	   00000000 R
 
- 0000001A				ADD_TYPES:
- 0000001A  E8 00000004				call addtype
- 0000001F  FE C3				inc bl
- 00000021  E2 F7				loop ADD_TYPES
- 00000023			deckgen ENDP
+ 0000001F				ADD_TYPES:
+ 0000001F  E8 00000004				call addtype
+ 00000024  FE C3				inc bl
+ 00000026  E2 F7				loop ADD_TYPES
+ 00000028			deckgen ENDP
 
 
- 00000023			addtype PROC USES ecx
- 00000023  51		   *	    push   ecx
- 00000024  B9 00000004			mov ecx, 4
- 00000029				ADD_ELEMENT:
- 00000029  88 1C 35				mov deck[esi * BYTE], bl
+ 00000028			addtype PROC USES ecx
+ 00000028  51		   *	    push   ecx
+ 00000029  B9 00000004			mov ecx, 4
+ 0000002E				ADD_ELEMENT:
+ 0000002E  88 1C 35				mov deck[esi * BYTE], bl
 	   00000000 R
- 00000030  46					inc esi
- 00000031  E2 F6				loop ADD_ELEMENT
+ 00000035  46					inc esi
+ 00000036  E2 F6				loop ADD_ELEMENT
 					ret
- 00000033  59		   *	    pop    ecx
- 00000034  C3		   *	    ret    00000h
- 00000035			addtype ENDP
+ 00000038  59		   *	    pop    ecx
+ 00000039  C3		   *	    ret    00000h
+ 0000003A			addtype ENDP
 
- 00000035			shuffle PROC
-					
+ 0000003A			shuffle PROC USES esi
+ 0000003A  56		   *	    push   esi
+ 0000003B  B9 00000034			mov ecx, 52
+ 00000040  0F B6 35			movzx esi, BYTE PTR [shuffled_deck]
+	   00000034 R
+ 00000047  E8 00000000 E		call Randomize
+ 0000004C				SHUFFLEL:
+ 0000004C  0F B6 05				movzx eax, shuffle_range_size
+	   00000068 R
+ 00000053  40					inc eax
+ 00000054  E8 00000000 E			call RandomRange
+ 00000059  8A 1C 05				mov bl, deck[eax * BYTE]
+	   00000000 R
+ 00000060  88 1C 35				mov shuffled_deck[esi * BYTE], bl
+	   00000034 R
+ 00000067  46					inc esi
+ 00000068  FE 0D 00000068 R			dec shuffle_range_size
+ 0000006E  E8 00000004				call shiftleft
+ 00000073  E2 D7				loop SHUFFLEL
 
- 00000035  C3				ret
- 00000036			shuffle ENDP
+					ret
+ 00000075  5E		   *	    pop    esi
+ 00000076  C3		   *	    ret    00000h
+ 00000077			shuffle ENDP
+
+ 00000077			shiftleft PROC USES ecx edx
+ 00000077  51		   *	    push   ecx
+ 00000078  52		   *	    push   edx
+ 00000079  A3 00000069 R		mov shift_index, eax
+ 0000007E  B8 00000034			mov eax, LENGTHOF deck
+ 00000083  2B 05 00000069 R		sub eax, shift_index
+ 00000089  48				dec eax
+ 0000008A  48				dec eax
+ 0000008B  8B C8			mov ecx, eax
+ 0000008D				SHIFTL:
+ 0000008D  A1 00000069 R			mov eax, shift_index
+ 00000092  40					inc eax
+ 00000093  8A 1C 05				mov bl, deck[eax * BYTE] 
+	   00000000 R
+ 0000009A  8B 15 00000069 R			mov edx, shift_index
+ 000000A0  88 1C 15				mov deck[edx * BYTE], bl
+	   00000000 R
+ 000000A7  A1 00000069 R			mov eax, shift_index
+ 000000AC  40					inc eax
+ 000000AD  A3 00000069 R			mov shift_index, eax
+ 000000B2  E2 D9				loop SHIFTL
+
+					ret
+ 000000B4  5A		   *	    pop    edx
+ 000000B5  59		   *	    pop    ecx
+ 000000B6  C3		   *	    ret    00000h
+ 000000B7			shiftleft ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 12:46:44
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
 	BLACKJAC					     Symbols 2 - 1
 
 
@@ -181,8 +228,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000069 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000036 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000006D Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000B7 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -289,14 +336,17 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-addtype  . . . . . . . . . . . .	P Near	 00000023 _TEXT	Length= 00000012 Public STDCALL
-  ADD_ELEMENT  . . . . . . . . .	L Near	 00000029 _TEXT	
-deckgen  . . . . . . . . . . . .	P Near	 0000000C _TEXT	Length= 00000017 Public STDCALL
-  ADD_TYPES  . . . . . . . . . .	L Near	 0000001A _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000000C Public STDCALL
+addtype  . . . . . . . . . . . .	P Near	 00000028 _TEXT	Length= 00000012 Public STDCALL
+  ADD_ELEMENT  . . . . . . . . .	L Near	 0000002E _TEXT	
+deckgen  . . . . . . . . . . . .	P Near	 00000011 _TEXT	Length= 00000017 Public STDCALL
+  ADD_TYPES  . . . . . . . . . .	L Near	 0000001F _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000011 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-shuffle  . . . . . . . . . . . .	P Near	 00000035 _TEXT	Length= 00000001 Public STDCALL
+shiftleft  . . . . . . . . . . .	P Near	 00000077 _TEXT	Length= 00000040 Public STDCALL
+  SHIFTL . . . . . . . . . . . .	L Near	 0000008D _TEXT	
+shuffle  . . . . . . . . . . . .	P Near	 0000003A _TEXT	Length= 0000003D Public STDCALL
+  SHUFFLEL . . . . . . . . . . .	L Near	 0000004C _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -529,6 +579,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+shift_index  . . . . . . . . . .	DWord	 00000069 _DATA	
 shuffle_range_size . . . . . . .	Byte	 00000068 _DATA	
 shuffled_deck  . . . . . . . . .	Byte	 00000034 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
