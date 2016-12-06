@@ -14,6 +14,13 @@ deck BYTE 52 DUP(?)
 shuffled_deck BYTE 52 DUP(?)
 shuffle_range_size BYTE 52
 shift_index DWORD ?
+dealer_hand BYTE 10 DUP(?)
+dealer_facedown BYTE ?
+dealer_idx BYTE 0
+player_hand BYTE 10 DUP(?)
+player_facedown BYTE ?
+player_idx BYTE 0
+
 
 
 .code
@@ -22,6 +29,7 @@ main PROC
 	call deckgen
 	call shuffle
 
+
 	invoke ExitProcess, 0
 main ENDP
 
@@ -29,7 +37,7 @@ main ENDP
 
 deckgen PROC
 	mov bl, 1
-	mov ecx, 13
+	mov ecx, 12
 	movzx esi, BYTE PTR [deck]
 
 	ADD_TYPES:
@@ -86,5 +94,27 @@ shiftleft PROC USES ecx edx
 
 	ret
 shiftleft ENDP
+
+DealToHand PROC ;edx bool var to indicate face up or face down if true
+	cmp edx, 1
+	je FACEDOWN
+	cmp edx, 0
+	je FACEUP
+
+
+	FACEDOWN:
+		cmp ecx, 1
+		je DEALER_DOWN
+		cmp ecx, 0
+		je PLAYER_DOWN
+
+	FACEUP:
+		cmp ecx, 1
+		je DEALER_UP
+		cmp ecx, 0
+		je PLAYER_UP
+	
+
+DealToHand ENDP
 
 END main

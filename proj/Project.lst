@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/06/16 14:38:59
 	BLACKJAC					     Page 1 - 1
 
 
@@ -56,7 +56,7 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
 
  00000011			deckgen PROC
  00000011  B3 01			mov bl, 1
- 00000013  B9 0000000D			mov ecx, 13
+ 00000013  B9 0000000C			mov ecx, 12
  00000018  0F B6 35			movzx esi, BYTE PTR [deck]
 	   00000000 R
 
@@ -134,7 +134,7 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
  000000B7			shiftleft ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/04/16 14:12:55
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/06/16 14:38:59
 	BLACKJAC					     Symbols 2 - 1
 
 
