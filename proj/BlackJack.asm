@@ -28,7 +28,7 @@ player_idx BYTE 0
 main PROC
 	call deckgen
 	call shuffle
-
+	;call DealToHand
 
 	invoke ExitProcess, 0
 main ENDP
@@ -95,7 +95,7 @@ shiftleft PROC USES ecx edx
 	ret
 shiftleft ENDP
 
-DealToHand PROC ;edx bool var to indicate face up or face down if true
+DealToHand PROC ;edx bool var to indicate face up or face down if true, ecx true if dealing to dealer
 	cmp edx, 1
 	je FACEDOWN
 	cmp edx, 0
@@ -108,11 +108,20 @@ DealToHand PROC ;edx bool var to indicate face up or face down if true
 		cmp ecx, 0
 		je PLAYER_DOWN
 
+		DEALER_DOWN:
+
+		PLAYER_DOWN:
+
+
 	FACEUP:
 		cmp ecx, 1
 		je DEALER_UP
 		cmp ecx, 0
 		je PLAYER_UP
+
+		DEALER_UP:
+
+		PLAYER_UP:
 	
 
 DealToHand ENDP
