@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:56:10
 	BLACKJAC					     Page 1 - 1
 
 
@@ -144,7 +144,7 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
  000000A8			CheckBust ENDP
 
  000000A8			ClearHands PROC
- 000000A8  B9 0000000A		mov ecx, 10
+ 000000A8  B9 0000000B		mov ecx, 11
  000000AD  BE 00000000		mov esi, 0
 
  000000B2  C6 05 00000078 R	mov dealer_facedown, 0
@@ -366,7 +366,7 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
  000002CD			HitOrStay ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:56:10
 	BLACKJAC					     Symbols 2 - 1
 
 

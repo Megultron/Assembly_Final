@@ -94,7 +94,7 @@ ret
 CheckBust ENDP
 
 ClearHands PROC
-mov ecx, 10
+mov ecx, 11
 mov esi, 0
 
 mov dealer_facedown, 0
