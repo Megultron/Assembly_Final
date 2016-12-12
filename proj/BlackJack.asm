@@ -34,6 +34,8 @@ main PROC
 
 
 GameLoop:
+	call ClearHands
+
 	mov shuffled_idx, 0
 	mov shift_index, 0
 	mov shuffle_range_size, 52
@@ -92,7 +94,20 @@ ret
 CheckBust ENDP
 
 ClearHands PROC
+mov ecx, 10
+mov esi, 0
 
+mov dealer_facedown, 0
+mov player_facedown, 0
+
+mov player_idx, 0
+mov dealer_idx, 0
+
+clearhand:
+	mov player_hand[esi],0
+	mov dealer_hand[esi],0
+	inc esi
+	loop clearhand
 
 
 ret

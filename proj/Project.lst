@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:30:47
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
 	BLACKJAC					     Page 1 - 1
 
 
@@ -79,266 +79,294 @@ Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:30:47
 
 
  00000000			GameLoop:
- 00000000  C6 05 0000006D R		mov shuffled_idx, 0
+ 00000000  E8 000000A3			call ClearHands
+
+ 00000005  C6 05 0000006D R		mov shuffled_idx, 0
 	   00
- 00000007  C7 05 00000069 R		mov shift_index, 0
+ 0000000C  C7 05 00000069 R		mov shift_index, 0
 	   00000000
- 00000011  C6 05 00000068 R		mov shuffle_range_size, 52
+ 00000016  C6 05 00000068 R		mov shuffle_range_size, 52
 	   34
 
- 00000018  E8 000000C3			call deckgen
- 0000001D  E8 000000E5			call shuffle
- 00000022  E8 0000007C			call DealHands
+ 0000001D  E8 000000FB			call deckgen
+ 00000022  E8 0000011D			call shuffle
+ 00000027  E8 000000B4			call DealHands
 
 
- 00000027			MainLoop:
- 00000027  E8 00000000 E		call clrscr
- 0000002C  E8 000001E0			call DisplayCards
- 00000031  E8 00000235			call HitOrStay
- 00000036  E8 00000000 E		call clrscr
- 0000003B  E8 00000039			call CheckBust
- 00000040  83 F8 00			cmp eax, 0
- 00000043  74 E2			je MainLoop
- 00000045  83 F8 01			cmp eax, 1
- 00000048  74 00			je Bust
+ 0000002C			MainLoop:
+ 0000002C  E8 00000000 E		call clrscr
+ 00000031  E8 00000218			call DisplayCards
+ 00000036  E8 0000026D			call HitOrStay
+ 0000003B  E8 00000000 E		call clrscr
+ 00000040  E8 00000039			call CheckBust
+ 00000045  83 F8 00			cmp eax, 0
+ 00000048  74 E2			je MainLoop
+ 0000004A  83 F8 01			cmp eax, 1
+ 0000004D  74 00			je Bust
 
- 0000004A			Bust:
- 0000004A  E8 000001C2			call DisplayCards
- 0000004F  E8 00000000 E		call crlf
+ 0000004F			Bust:
+ 0000004F  E8 000001FA			call DisplayCards
+ 00000054  E8 00000000 E		call crlf
 
- 00000054  BA 000000B9 R		mov edx, OFFSET bust_msg
- 00000059  E8 00000000 E		call WriteString
- 0000005E  E8 00000000 E		call crlf
- 00000063  E8 00000000 E		call ReadInt
- 00000068  83 F8 01			cmp eax, 1
- 0000006B  74 93			je GameLoop
- 0000006D  83 F8 00			cmp eax, 0
- 00000070  74 00			je ExitGame
+ 00000059  BA 000000B9 R		mov edx, OFFSET bust_msg
+ 0000005E  E8 00000000 E		call WriteString
+ 00000063  E8 00000000 E		call crlf
+ 00000068  E8 00000000 E		call ReadInt
+ 0000006D  83 F8 01			cmp eax, 1
+ 00000070  74 8E			je GameLoop
+ 00000072  83 F8 00			cmp eax, 0
+ 00000075  74 00			je ExitGame
 
- 00000072			ExitGame:
+ 00000077			ExitGame:
 					invoke ExitProcess, 0
- 00000072  6A 00	   *	    push   +000000000h
- 00000074  E8 00000000 E   *	    call   ExitProcess
- 00000079			main ENDP
+ 00000077  6A 00	   *	    push   +000000000h
+ 00000079  E8 00000000 E   *	    call   ExitProcess
+ 0000007E			main ENDP
 
- 00000079			CheckBust PROC
- 00000079  A0 00000084 R		mov al, player_facedown
- 0000007E  BE 00000000			mov esi, 0
- 00000083  B9 0000000A			mov ecx, LENGTHOF player_hand
- 00000088				SumLoop:
- 00000088  02 86 0000007A R			add al, player_hand[esi]
- 0000008E  46					inc esi
- 0000008F  83 F8 15				cmp eax, 21
- 00000092  77 08				ja Bust
- 00000094  E2 F2				loop SumLoop
- 00000096  B8 00000000				mov eax, 0
- 0000009B  C3					ret
- 0000009C				Bust:
- 0000009C  B8 00000001				mov eax, 1
- 000000A1  C3					ret
+ 0000007E			CheckBust PROC
+ 0000007E  A0 00000084 R		mov al, player_facedown
+ 00000083  BE 00000000			mov esi, 0
+ 00000088  B9 0000000A			mov ecx, LENGTHOF player_hand
+ 0000008D				SumLoop:
+ 0000008D  02 86 0000007A R			add al, player_hand[esi]
+ 00000093  46					inc esi
+ 00000094  83 F8 15				cmp eax, 21
+ 00000097  77 08				ja Bust
+ 00000099  E2 F2				loop SumLoop
+ 0000009B  B8 00000000				mov eax, 0
+ 000000A0  C3					ret
+ 000000A1				Bust:
+ 000000A1  B8 00000001				mov eax, 1
+ 000000A6  C3					ret
 						
 
- 000000A2  C3			ret
- 000000A3			CheckBust ENDP
+ 000000A7  C3			ret
+ 000000A8			CheckBust ENDP
 
- 000000A3			DealHands PROC
+ 000000A8			ClearHands PROC
+ 000000A8  B9 0000000A		mov ecx, 10
+ 000000AD  BE 00000000		mov esi, 0
 
- 000000A3  BA 00000000			mov edx, 0
- 000000A8  BB 00000000			mov ebx, 0
- 000000AD  E8 000000D4			call DealToHand ;Player Faceup
- 000000B2  BA 00000000			mov edx, 0
- 000000B7  BB 00000001			mov ebx, 1
- 000000BC  E8 000000C5			call DealToHand ;Dealer Faceup
+ 000000B2  C6 05 00000078 R	mov dealer_facedown, 0
+	   00
+ 000000B9  C6 05 00000084 R	mov player_facedown, 0
+	   00
 
- 000000C1  BA 00000001			mov edx, 1
- 000000C6  BB 00000000			mov ebx, 0
- 000000CB  E8 000000B6			call DealToHand ;Player Facedown
- 000000D0  BA 00000001			mov edx, 1
- 000000D5  BB 00000001			mov ebx, 1
- 000000DA  E8 000000A7			call DealToHand ;Dealer Facedown
+ 000000C0  C6 05 00000085 R	mov player_idx, 0
+	   00
+ 000000C7  C6 05 00000079 R	mov dealer_idx, 0
+	   00
+
+ 000000CE			clearhand:
+ 000000CE  C6 86 0000007A R		mov player_hand[esi],0
+	   00
+ 000000D5  C6 86 0000006E R		mov dealer_hand[esi],0
+	   00
+ 000000DC  46				inc esi
+ 000000DD  E2 EF			loop clearhand
+
 
  000000DF  C3			ret
- 000000E0			DealHands ENDP
+ 000000E0			ClearHands ENDP
 
- 000000E0			deckgen PROC
- 000000E0  BE 00000000			mov esi, 0
- 000000E5  B3 01			mov bl, 1
- 000000E7  B9 0000000C			mov ecx, 12
+ 000000E0			DealHands PROC
+
+ 000000E0  BA 00000000			mov edx, 0
+ 000000E5  BB 00000000			mov ebx, 0
+ 000000EA  E8 000000D4			call DealToHand ;Player Faceup
+ 000000EF  BA 00000000			mov edx, 0
+ 000000F4  BB 00000001			mov ebx, 1
+ 000000F9  E8 000000C5			call DealToHand ;Dealer Faceup
+
+ 000000FE  BA 00000001			mov edx, 1
+ 00000103  BB 00000000			mov ebx, 0
+ 00000108  E8 000000B6			call DealToHand ;Player Facedown
+ 0000010D  BA 00000001			mov edx, 1
+ 00000112  BB 00000001			mov ebx, 1
+ 00000117  E8 000000A7			call DealToHand ;Dealer Facedown
+
+ 0000011C  C3			ret
+ 0000011D			DealHands ENDP
+
+ 0000011D			deckgen PROC
+ 0000011D  BE 00000000			mov esi, 0
+ 00000122  B3 01			mov bl, 1
+ 00000124  B9 0000000C			mov ecx, 12
 					;movzx esi, BYTE PTR [deck]
 
- 000000EC				ADD_TYPES:
- 000000EC  E8 00000004				call addtype
- 000000F1  FE C3				inc bl
- 000000F3  E2 F7				loop ADD_TYPES
- 000000F5			deckgen ENDP
+ 00000129				ADD_TYPES:
+ 00000129  E8 00000004				call addtype
+ 0000012E  FE C3				inc bl
+ 00000130  E2 F7				loop ADD_TYPES
+ 00000132			deckgen ENDP
 
 
- 000000F5			addtype PROC USES ecx
- 000000F5  51		   *	    push   ecx
- 000000F6  B9 00000004			mov ecx, 4
- 000000FB				ADD_ELEMENT:
- 000000FB  88 1C 35				mov deck[esi * BYTE], bl
+ 00000132			addtype PROC USES ecx
+ 00000132  51		   *	    push   ecx
+ 00000133  B9 00000004			mov ecx, 4
+ 00000138				ADD_ELEMENT:
+ 00000138  88 1C 35				mov deck[esi * BYTE], bl
 	   00000000 R
- 00000102  46					inc esi
- 00000103  E2 F6				loop ADD_ELEMENT
+ 0000013F  46					inc esi
+ 00000140  E2 F6				loop ADD_ELEMENT
 					ret
- 00000105  59		   *	    pop    ecx
- 00000106  C3		   *	    ret    00000h
- 00000107			addtype ENDP
-
- 00000107			shuffle PROC USES esi 
- 00000107  56		   *	    push   esi
- 00000108  B9 00000034			mov ecx, 52
- 0000010D  0F B6 35			movzx esi, BYTE PTR [shuffled_deck]
-	   00000034 R
- 00000114  E8 00000000 E		call Randomize
- 00000119				SHUFFLEL:
- 00000119  0F B6 05				movzx eax, shuffle_range_size
-	   00000068 R
- 00000120  40					inc eax
- 00000121  E8 00000000 E			call RandomRange
- 00000126  8A 1C 05				mov bl, deck[eax * BYTE]
-	   00000000 R
- 0000012D  88 1C 35				mov shuffled_deck[esi * BYTE], bl
-	   00000034 R
- 00000134  46					inc esi
- 00000135  FE 0D 00000068 R			dec shuffle_range_size
- 0000013B  E8 00000004				call shiftleft
- 00000140  E2 D7				loop SHUFFLEL
-
-					ret
- 00000142  5E		   *	    pop    esi
+ 00000142  59		   *	    pop    ecx
  00000143  C3		   *	    ret    00000h
- 00000144			shuffle ENDP
+ 00000144			addtype ENDP
 
- 00000144			shiftleft PROC USES eax ecx edx
- 00000144  50		   *	    push   eax
- 00000145  51		   *	    push   ecx
- 00000146  52		   *	    push   edx
- 00000147  A3 00000069 R		mov shift_index, eax
- 0000014C  B8 00000034			mov eax, LENGTHOF deck
- 00000151  2B 05 00000069 R		sub eax, shift_index
- 00000157  48				dec eax
- 00000158  48				dec eax
- 00000159  8B C8			mov ecx, eax
- 0000015B				SHIFTL:
- 0000015B  A1 00000069 R			mov eax, shift_index
- 00000160  40					inc eax
- 00000161  8A 1C 05				mov bl, deck[eax * BYTE] 
+ 00000144			shuffle PROC USES esi 
+ 00000144  56		   *	    push   esi
+ 00000145  B9 00000034			mov ecx, 52
+ 0000014A  0F B6 35			movzx esi, BYTE PTR [shuffled_deck]
+	   00000034 R
+ 00000151  E8 00000000 E		call Randomize
+ 00000156				SHUFFLEL:
+ 00000156  0F B6 05				movzx eax, shuffle_range_size
+	   00000068 R
+ 0000015D  40					inc eax
+ 0000015E  E8 00000000 E			call RandomRange
+ 00000163  8A 1C 05				mov bl, deck[eax * BYTE]
 	   00000000 R
- 00000168  8B 15 00000069 R			mov edx, shift_index
- 0000016E  88 1C 15				mov deck[edx * BYTE], bl
-	   00000000 R
- 00000175  A1 00000069 R			mov eax, shift_index
- 0000017A  40					inc eax
- 0000017B  A3 00000069 R			mov shift_index, eax
- 00000180  E2 D9				loop SHIFTL
+ 0000016A  88 1C 35				mov shuffled_deck[esi * BYTE], bl
+	   00000034 R
+ 00000171  46					inc esi
+ 00000172  FE 0D 00000068 R			dec shuffle_range_size
+ 00000178  E8 00000004				call shiftleft
+ 0000017D  E2 D7				loop SHUFFLEL
 
 					ret
- 00000182  5A		   *	    pop    edx
- 00000183  59		   *	    pop    ecx
- 00000184  58		   *	    pop    eax
- 00000185  C3		   *	    ret    00000h
- 00000186			shiftleft ENDP
+ 0000017F  5E		   *	    pop    esi
+ 00000180  C3		   *	    ret    00000h
+ 00000181			shuffle ENDP
 
- 00000186			DealToHand PROC ;edx bool var to indicate face up or face down if true, ecx true if dealing to dealer
- 00000186  0F B6 35			movzx esi, shuffled_idx
+ 00000181			shiftleft PROC USES eax ecx edx
+ 00000181  50		   *	    push   eax
+ 00000182  51		   *	    push   ecx
+ 00000183  52		   *	    push   edx
+ 00000184  A3 00000069 R		mov shift_index, eax
+ 00000189  B8 00000034			mov eax, LENGTHOF deck
+ 0000018E  2B 05 00000069 R		sub eax, shift_index
+ 00000194  48				dec eax
+ 00000195  48				dec eax
+ 00000196  8B C8			mov ecx, eax
+ 00000198				SHIFTL:
+ 00000198  A1 00000069 R			mov eax, shift_index
+ 0000019D  40					inc eax
+ 0000019E  8A 1C 05				mov bl, deck[eax * BYTE] 
+	   00000000 R
+ 000001A5  8B 15 00000069 R			mov edx, shift_index
+ 000001AB  88 1C 15				mov deck[edx * BYTE], bl
+	   00000000 R
+ 000001B2  A1 00000069 R			mov eax, shift_index
+ 000001B7  40					inc eax
+ 000001B8  A3 00000069 R			mov shift_index, eax
+ 000001BD  E2 D9				loop SHIFTL
+
+					ret
+ 000001BF  5A		   *	    pop    edx
+ 000001C0  59		   *	    pop    ecx
+ 000001C1  58		   *	    pop    eax
+ 000001C2  C3		   *	    ret    00000h
+ 000001C3			shiftleft ENDP
+
+ 000001C3			DealToHand PROC ;edx bool var to indicate face up or face down if true, ecx true if dealing to dealer
+ 000001C3  0F B6 35			movzx esi, shuffled_idx
 	   0000006D R
- 0000018D  83 FA 01			cmp edx, 1
- 00000190  74 05			je FACEDOWN
- 00000192  83 FA 00			cmp edx, 0
- 00000195  74 30			je FACEUP
+ 000001CA  83 FA 01			cmp edx, 1
+ 000001CD  74 05			je FACEDOWN
+ 000001CF  83 FA 00			cmp edx, 0
+ 000001D2  74 30			je FACEUP
 
 
- 00000197				FACEDOWN:
- 00000197  83 FB 01				cmp ebx, 1
- 0000019A  74 05				je DEALER_DOWN
- 0000019C  83 FB 00				cmp ebx, 0
- 0000019F  74 13				je PLAYER_DOWN
+ 000001D4				FACEDOWN:
+ 000001D4  83 FB 01				cmp ebx, 1
+ 000001D7  74 05				je DEALER_DOWN
+ 000001D9  83 FB 00				cmp ebx, 0
+ 000001DC  74 13				je PLAYER_DOWN
 
- 000001A1					DEALER_DOWN:
- 000001A1  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
- 000001A7  88 0D 00000078 R				mov dealer_facedown, cl
- 000001AD  FE 05 0000006D R				inc shuffled_idx
- 000001B3  C3						ret
- 000001B4					PLAYER_DOWN:
- 000001B4  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
- 000001BA  88 0D 00000084 R				mov player_facedown, cl
- 000001C0  FE 05 0000006D R				inc shuffled_idx
- 000001C6  C3						ret
-
- 000001C7				FACEUP:
- 000001C7  83 FB 01				cmp ebx, 1
- 000001CA  74 05				je DEALER_UP
- 000001CC  83 FB 00				cmp ebx, 0
- 000001CF  74 20				je PLAYER_UP
-
- 000001D1					DEALER_UP:
- 000001D1  0F B6 05					movzx eax, dealer_idx
-	   00000079 R
- 000001D8  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
- 000001DE  88 88 0000006E R				mov dealer_hand[eax], cl
- 000001E4  FE 05 0000006D R				inc shuffled_idx
- 000001EA  FE 05 00000079 R				inc dealer_idx
+ 000001DE					DEALER_DOWN:
+ 000001DE  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
+ 000001E4  88 0D 00000078 R				mov dealer_facedown, cl
+ 000001EA  FE 05 0000006D R				inc shuffled_idx
  000001F0  C3						ret
- 000001F1					PLAYER_UP:
- 000001F1  0F B6 05					movzx eax, player_idx
+ 000001F1					PLAYER_DOWN:
+ 000001F1  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
+ 000001F7  88 0D 00000084 R				mov player_facedown, cl
+ 000001FD  FE 05 0000006D R				inc shuffled_idx
+ 00000203  C3						ret
+
+ 00000204				FACEUP:
+ 00000204  83 FB 01				cmp ebx, 1
+ 00000207  74 05				je DEALER_UP
+ 00000209  83 FB 00				cmp ebx, 0
+ 0000020C  74 20				je PLAYER_UP
+
+ 0000020E					DEALER_UP:
+ 0000020E  0F B6 05					movzx eax, dealer_idx
+	   00000079 R
+ 00000215  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
+ 0000021B  88 88 0000006E R				mov dealer_hand[eax], cl
+ 00000221  FE 05 0000006D R				inc shuffled_idx
+ 00000227  FE 05 00000079 R				inc dealer_idx
+ 0000022D  C3						ret
+ 0000022E					PLAYER_UP:
+ 0000022E  0F B6 05					movzx eax, player_idx
 	   00000085 R
- 000001F8  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
- 000001FE  88 88 0000007A R				mov player_hand[eax], cl
- 00000204  FE 05 0000006D R				inc shuffled_idx
- 0000020A  FE 05 00000085 R				inc player_idx
- 00000210  C3						ret
+ 00000235  8A 8E 00000034 R				mov cl, shuffled_deck[esi]
+ 0000023B  88 88 0000007A R				mov player_hand[eax], cl
+ 00000241  FE 05 0000006D R				inc shuffled_idx
+ 00000247  FE 05 00000085 R				inc player_idx
+ 0000024D  C3						ret
 
- 00000211			DealToHand ENDP
+ 0000024E			DealToHand ENDP
 
- 00000211			DisplayCards PROC
+ 0000024E			DisplayCards PROC
 
- 00000211  BA 00000086 R		mov edx,OFFSET face_up_string
- 00000216  E8 00000000 E		call WriteString
- 0000021B  BE 00000000			mov esi,0
- 00000220  B9 0000000A			mov ecx, LENGTHOF player_hand
- 00000225				PlayerHand:
- 00000225  8A 86 0000007A R			mov al, player_hand[esi]
- 0000022B  E8 00000000 E			call WriteInt
- 00000230  46					inc esi
- 00000231  E2 F2				loop PlayerHand
+ 0000024E  BA 00000086 R		mov edx,OFFSET face_up_string
+ 00000253  E8 00000000 E		call WriteString
+ 00000258  BE 00000000			mov esi,0
+ 0000025D  B9 0000000A			mov ecx, LENGTHOF player_hand
+ 00000262				PlayerHand:
+ 00000262  8A 86 0000007A R			mov al, player_hand[esi]
+ 00000268  E8 00000000 E			call WriteInt
+ 0000026D  46					inc esi
+ 0000026E  E2 F2				loop PlayerHand
 
- 00000233  E8 00000000 E		call crlf
- 00000238  BA 00000090 R		mov edx, OFFSET face_down_string
- 0000023D  E8 00000000 E		call WriteString
- 00000242  A0 00000084 R		mov al, player_facedown
- 00000247  E8 00000000 E		call WriteInt
- 0000024C  E8 00000000 E		call crlf
+ 00000270  E8 00000000 E		call crlf
+ 00000275  BA 00000090 R		mov edx, OFFSET face_down_string
+ 0000027A  E8 00000000 E		call WriteString
+ 0000027F  A0 00000084 R		mov al, player_facedown
+ 00000284  E8 00000000 E		call WriteInt
+ 00000289  E8 00000000 E		call crlf
 
- 00000251  BA 0000009C R		mov edx, OFFSET dealer_faceup_string
- 00000256  E8 00000000 E		call WriteString
- 0000025B  A0 0000006E R		mov al, dealer_hand[0]
- 00000260  E8 00000000 E		call WriteInt
- 00000265  E8 00000000 E		call crlf
+ 0000028E  BA 0000009C R		mov edx, OFFSET dealer_faceup_string
+ 00000293  E8 00000000 E		call WriteString
+ 00000298  A0 0000006E R		mov al, dealer_hand[0]
+ 0000029D  E8 00000000 E		call WriteInt
+ 000002A2  E8 00000000 E		call crlf
 
- 0000026A  C3				ret
- 0000026B			DisplayCards ENDP
+ 000002A7  C3				ret
+ 000002A8			DisplayCards ENDP
 
- 0000026B			HitOrStay PROC
+ 000002A8			HitOrStay PROC
 
- 0000026B  BA 000000A5 R		mov edx,OFFSET hit_or_stay
- 00000270  E8 00000000 E		call WriteString
- 00000275  E8 00000000 E		call ReadInt
- 0000027A  83 F8 01			cmp eax,1
- 0000027D  74 01			je HIT
- 0000027F  C3				ret
+ 000002A8  BA 000000A5 R		mov edx,OFFSET hit_or_stay
+ 000002AD  E8 00000000 E		call WriteString
+ 000002B2  E8 00000000 E		call ReadInt
+ 000002B7  83 F8 01			cmp eax,1
+ 000002BA  74 01			je HIT
+ 000002BC  C3				ret
 
- 00000280				HIT:
- 00000280  BA 00000000				mov edx,0
- 00000285  BB 00000000				mov ebx,0
- 0000028A  E8 FFFFFEF7				call DealToHand
- 0000028F  C3					ret
+ 000002BD				HIT:
+ 000002BD  BA 00000000				mov edx,0
+ 000002C2  BB 00000000				mov ebx,0
+ 000002C7  E8 FFFFFEF7				call DealToHand
+ 000002CC  C3					ret
 
- 00000290			HitOrStay ENDP
+ 000002CD			HitOrStay ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:30:47
+Microsoft (R) Macro Assembler Version 14.00.24210.0	    12/12/16 11:45:21
 	BLACKJAC					     Symbols 2 - 1
 
 
@@ -433,33 +461,35 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000000E7 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000290 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000002CD Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CheckBust  . . . . . . . . . . .	P Near	 00000079 _TEXT	Length= 0000002A Public STDCALL
-  SumLoop  . . . . . . . . . . .	L Near	 00000088 _TEXT	
-  Bust . . . . . . . . . . . . .	L Near	 0000009C _TEXT	
+CheckBust  . . . . . . . . . . .	P Near	 0000007E _TEXT	Length= 0000002A Public STDCALL
+  SumLoop  . . . . . . . . . . .	L Near	 0000008D _TEXT	
+  Bust . . . . . . . . . . . . .	L Near	 000000A1 _TEXT	
+ClearHands . . . . . . . . . . .	P Near	 000000A8 _TEXT	Length= 00000038 Public STDCALL
+  clearhand  . . . . . . . . . .	L Near	 000000CE _TEXT	
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DealHands  . . . . . . . . . . .	P Near	 000000A3 _TEXT	Length= 0000003D Public STDCALL
-DealToHand . . . . . . . . . . .	P Near	 00000186 _TEXT	Length= 0000008B Public STDCALL
-  FACEDOWN . . . . . . . . . . .	L Near	 00000197 _TEXT	
-  DEALER_DOWN  . . . . . . . . .	L Near	 000001A1 _TEXT	
-  PLAYER_DOWN  . . . . . . . . .	L Near	 000001B4 _TEXT	
-  FACEUP . . . . . . . . . . . .	L Near	 000001C7 _TEXT	
-  DEALER_UP  . . . . . . . . . .	L Near	 000001D1 _TEXT	
-  PLAYER_UP  . . . . . . . . . .	L Near	 000001F1 _TEXT	
+DealHands  . . . . . . . . . . .	P Near	 000000E0 _TEXT	Length= 0000003D Public STDCALL
+DealToHand . . . . . . . . . . .	P Near	 000001C3 _TEXT	Length= 0000008B Public STDCALL
+  FACEDOWN . . . . . . . . . . .	L Near	 000001D4 _TEXT	
+  DEALER_DOWN  . . . . . . . . .	L Near	 000001DE _TEXT	
+  PLAYER_DOWN  . . . . . . . . .	L Near	 000001F1 _TEXT	
+  FACEUP . . . . . . . . . . . .	L Near	 00000204 _TEXT	
+  DEALER_UP  . . . . . . . . . .	L Near	 0000020E _TEXT	
+  PLAYER_UP  . . . . . . . . . .	L Near	 0000022E _TEXT	
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DisplayCards . . . . . . . . . .	P Near	 00000211 _TEXT	Length= 0000005A Public STDCALL
-  PlayerHand . . . . . . . . . .	L Near	 00000225 _TEXT	
+DisplayCards . . . . . . . . . .	P Near	 0000024E _TEXT	Length= 0000005A Public STDCALL
+  PlayerHand . . . . . . . . . .	L Near	 00000262 _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -492,8 +522,8 @@ HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-HitOrStay  . . . . . . . . . . .	P Near	 0000026B _TEXT	Length= 00000025 Public STDCALL
-  HIT  . . . . . . . . . . . . .	L Near	 00000280 _TEXT	
+HitOrStay  . . . . . . . . . . .	P Near	 000002A8 _TEXT	Length= 00000025 Public STDCALL
+  HIT  . . . . . . . . . . . . .	L Near	 000002BD _TEXT	
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -555,21 +585,21 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-addtype  . . . . . . . . . . . .	P Near	 000000F5 _TEXT	Length= 00000012 Public STDCALL
-  ADD_ELEMENT  . . . . . . . . .	L Near	 000000FB _TEXT	
-deckgen  . . . . . . . . . . . .	P Near	 000000E0 _TEXT	Length= 00000015 Public STDCALL
-  ADD_TYPES  . . . . . . . . . .	L Near	 000000EC _TEXT	
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000079 Public STDCALL
+addtype  . . . . . . . . . . . .	P Near	 00000132 _TEXT	Length= 00000012 Public STDCALL
+  ADD_ELEMENT  . . . . . . . . .	L Near	 00000138 _TEXT	
+deckgen  . . . . . . . . . . . .	P Near	 0000011D _TEXT	Length= 00000015 Public STDCALL
+  ADD_TYPES  . . . . . . . . . .	L Near	 00000129 _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000007E Public STDCALL
   GameLoop . . . . . . . . . . .	L Near	 00000000 _TEXT	
-  MainLoop . . . . . . . . . . .	L Near	 00000027 _TEXT	
-  Bust . . . . . . . . . . . . .	L Near	 0000004A _TEXT	
-  ExitGame . . . . . . . . . . .	L Near	 00000072 _TEXT	
+  MainLoop . . . . . . . . . . .	L Near	 0000002C _TEXT	
+  Bust . . . . . . . . . . . . .	L Near	 0000004F _TEXT	
+  ExitGame . . . . . . . . . . .	L Near	 00000077 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-shiftleft  . . . . . . . . . . .	P Near	 00000144 _TEXT	Length= 00000042 Public STDCALL
-  SHIFTL . . . . . . . . . . . .	L Near	 0000015B _TEXT	
-shuffle  . . . . . . . . . . . .	P Near	 00000107 _TEXT	Length= 0000003D Public STDCALL
-  SHUFFLEL . . . . . . . . . . .	L Near	 00000119 _TEXT	
+shiftleft  . . . . . . . . . . .	P Near	 00000181 _TEXT	Length= 00000042 Public STDCALL
+  SHIFTL . . . . . . . . . . . .	L Near	 00000198 _TEXT	
+shuffle  . . . . . . . . . . . .	P Near	 00000144 _TEXT	Length= 0000003D Public STDCALL
+  SHUFFLEL . . . . . . . . . . .	L Near	 00000156 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
