@@ -30,19 +30,21 @@ bust_msg BYTE "You Busted! Press 1 to play again, 0 to exit.", 0
 
 main PROC
 
-call deckgen
+
 
 
 GameLoop:
 	mov shuffled_idx, 0
 	mov shift_index, 0
-	
+	mov shuffle_range_size, 52
+
+	call deckgen
 	call shuffle
 	call DealHands
-	mov ecx, 1
+
 
 MainLoop:
-	inc ecx
+	call clrscr
 	call DisplayCards
 	call HitOrStay
 	call clrscr
@@ -53,6 +55,9 @@ MainLoop:
 	je Bust
 
 Bust:
+	call DisplayCards
+	call crlf
+
 	mov edx, OFFSET bust_msg
 	call WriteString
 	call crlf
@@ -86,6 +91,13 @@ CheckBust PROC
 ret
 CheckBust ENDP
 
+ClearHands PROC
+
+
+
+ret
+ClearHands ENDP
+
 DealHands PROC
 
 	mov edx, 0
@@ -106,9 +118,10 @@ ret
 DealHands ENDP
 
 deckgen PROC
+	mov esi, 0
 	mov bl, 1
 	mov ecx, 12
-	movzx esi, BYTE PTR [deck]
+	;movzx esi, BYTE PTR [deck]
 
 	ADD_TYPES:
 		call addtype
@@ -144,7 +157,7 @@ shuffle PROC USES esi
 	ret
 shuffle ENDP
 
-shiftleft PROC USES ecx edx
+shiftleft PROC USES eax ecx edx
 	mov shift_index, eax
 	mov eax, LENGTHOF deck
 	sub eax, shift_index
