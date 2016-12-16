@@ -4,35 +4,44 @@ TITLE BLACKJACK
 ; 
 ; Revision date:
 
+
+
 INCLUDE Irvine32.inc
 
 .data
+;Deck of Cards and Shuffled Deck info
 deck BYTE 52 DUP(?)
 shuffled_deck BYTE 52 DUP(?)
 shuffle_range_size BYTE 52
 shift_index DWORD ?
 shuffled_idx BYTE 0
 
+;Contains dealer hand info, same as player's
 dealer_hand BYTE 10 DUP(?)
 dealer_facedown BYTE ?
 dealer_idx BYTE 0
 
+;Contains all of the player's face up cards
 player_hand BYTE 10 DUP(?)
+;Contains the player's face down card
 player_facedown BYTE ?
+;Contains total number of player's cards
 player_idx BYTE 0
 
+;Variable to signify if the player stayed
+player_stay BYTE 0
+
+;All of the possible output messages
 face_up_string BYTE "Face Up: ",0
 face_down_string BYTE "Face Down: ",0
 dealer_faceup_string BYTE "Dealer: ",0
 hit_or_stay BYTE "1. Hit or 2. Stay: ",0
 bust_msg BYTE "You Busted! Press 1 to play again, 0 to exit.", 0
+win_msg BYTE "You won! Press 1 to play again, 0 to exit.",0
 .code
 
 main PROC
-
-
-
-
+;Main Game Loop, clears players hands and reset indecies for shuffling cards after a complete game
 GameLoop:
 	call ClearHands
 
@@ -44,7 +53,7 @@ GameLoop:
 	call shuffle
 	call DealHands
 
-
+;Contains calls to functions for actual gameplay
 MainLoop:
 	call clrscr
 	call DisplayCards
@@ -55,7 +64,20 @@ MainLoop:
 	je MainLoop
 	cmp eax, 1
 	je Bust
-
+	ja Win
+;Contains the win message
+Win:
+	call DisplayCards
+	call crlf
+	mov edx, OFFSET win_msg
+	call WriteString
+	call crlf
+	call ReadInt
+	cmp eax, 1
+	je GameLoop
+	cmp eax, 0
+	je ExitGame
+;Contains the Bust Message
 Bust:
 	call DisplayCards
 	call crlf
@@ -69,10 +91,13 @@ Bust:
 	cmp eax, 0
 	je ExitGame
 
+;Invokes Exits Process
 ExitGame:
 	invoke ExitProcess, 0
 main ENDP
 
+;Checks if players hand is a bust and if so, sets eax to 1
+;Adds up player's hand and compares to 21
 CheckBust PROC
 	mov al, player_facedown
 	mov esi, 0
@@ -81,6 +106,7 @@ CheckBust PROC
 		add al, player_hand[esi]
 		inc esi
 		cmp eax, 21
+		je Win
 		ja Bust
 		loop SumLoop
 		mov eax, 0
@@ -88,11 +114,15 @@ CheckBust PROC
 	Bust:
 		mov eax, 1
 		ret
+	Win:
+		mov eax, 2
+		ret
 		
 
 ret
 CheckBust ENDP
 
+;Clears both the player's and dealer's hands in order to reset the game
 ClearHands PROC
 mov ecx, 11
 mov esi, 0
@@ -113,6 +143,7 @@ clearhand:
 ret
 ClearHands ENDP
 
+;deals hands to player or dealers faceup or facedown arrays based on edx and ebx values
 DealHands PROC
 
 	mov edx, 0
@@ -132,19 +163,24 @@ DealHands PROC
 ret
 DealHands ENDP
 
+;generates deck of cards values 1-10
 deckgen PROC
 	mov esi, 0
 	mov bl, 1
-	mov ecx, 12
+	mov ecx, 9
 	;movzx esi, BYTE PTR [deck]
 
 	ADD_TYPES:
 		call addtype
 		inc bl
 		loop ADD_TYPES
+	mov ecx,3
+	ADD_TEN: ;adds extra cards with values of 10 to represent all the face cards
+		call addtype
+		loop ADD_TEN
 deckgen ENDP
 
-
+;procedure used by deckgen to add different types of cards to the deck with values 1-10
 addtype PROC USES ecx
 	mov ecx, 4
 	ADD_ELEMENT:
@@ -154,6 +190,7 @@ addtype PROC USES ecx
 	ret
 addtype ENDP
 
+;shuffles cards using a random selection then shift left algorithm from the cards array into the shuffled cards array
 shuffle PROC USES esi 
 	mov ecx, 52
 	movzx esi, BYTE PTR [shuffled_deck]
@@ -172,6 +209,7 @@ shuffle PROC USES esi
 	ret
 shuffle ENDP
 
+;procedure used by shuffle to shift cards left after random card selection has occured
 shiftleft PROC USES eax ecx edx
 	mov shift_index, eax
 	mov eax, LENGTHOF deck
@@ -241,6 +279,7 @@ DealToHand PROC ;edx bool var to indicate face up or face down if true, ecx true
 
 DealToHand ENDP
 
+;displays card values for players faceup and facedown cards while hiding the dealers facedown values
 DisplayCards PROC
 
 	mov edx,OFFSET face_up_string
@@ -269,6 +308,7 @@ DisplayCards PROC
 	ret
 DisplayCards ENDP
 
+;user choice to hit or stay, uses ebx and edx to control dealtohand proc
 HitOrStay PROC
 
 	mov edx,OFFSET hit_or_stay
@@ -276,6 +316,7 @@ HitOrStay PROC
 	call ReadInt
 	cmp eax,1
 	je HIT
+	mov player_stay, 1
 	ret
 
 	HIT:
